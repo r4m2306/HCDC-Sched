@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Schedule</title>
+		<style>
+			:root {
+				color-scheme: light;
+				--bg: #f3f4f7;
+				--card: #ffffff;
+				--text: #1f2430;
+				--muted: #6b7280;
+				--border: #e5e7eb;
+				--accent: #2563eb;
+				--accent-soft: #e9f1ff;
+				--shadow: 0 12px 30px rgba(31, 36, 48, 0.08);
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+				background: var(--bg);
+				color: var(--text);
+			}
+
+			.page {
+				max-width: 880px;
+				margin: 0 auto;
+				padding: 28px 18px 40px;
+			}
+
+			header {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				margin-bottom: 18px;
+			}
+
+			header h1 {
+				margin: 0;
+				font-size: clamp(22px, 3vw, 32px);
+				font-weight: 700;
+			}
+
+			header p {
+				margin: 0;
+				color: var(--muted);
+			}
+
+			.badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				padding: 4px 10px;
+				border-radius: 999px;
+				font-size: 12px;
+				font-weight: 600;
+				color: var(--accent);
+				background: rgba(37, 99, 235, 0.12);
+			}
+
+			.schedule {
+				display: grid;
+				gap: 20px;
+			}
+
+			.day-section {
+				display: grid;
+				gap: 12px;
+				background: var(--card);
+				border-radius: 18px;
+				box-shadow: var(--shadow);
+				padding: 16px 16px 18px;
+				border: 1px solid var(--border);
+			}
+
+			.day-section.today {
+				background: var(--accent-soft);
+				border-color: rgba(37, 99, 235, 0.35);
+			}
+
+			.day-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 6px 6px 2px;
+			}
+
+			.day-title {
+				font-size: 13px;
+				letter-spacing: 0.14em;
+				text-transform: uppercase;
+				font-weight: 700;
+				color: var(--muted);
+			}
+
+			.day-count {
+				font-size: 12px;
+				color: var(--muted);
+			}
+
+			.lesson-card {
+				display: grid;
+				grid-template-columns: 90px 1fr;
+				gap: 12px;
+				align-items: center;
+				padding: 12px;
+				border-radius: 14px;
+				background: #f8fafc;
+				border: 1px solid rgba(15, 23, 42, 0.06);
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				cursor: pointer;
+			}
+
+			.lesson-card.active {
+				transform: translateY(-2px);
+				box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);
+			}
+
+			.time {
+				font-size: 12px;
+				color: #4b5563;
+				font-weight: 600;
+				line-height: 1.4;
+			}
+
+			.subject {
+				font-weight: 700;
+				margin: 0;
+				font-size: 14px;
+			}
+
+			.meta {
+				margin-top: 4px;
+				font-size: 12px;
+				color: var(--muted);
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+			}
+
+			.tag {
+				padding: 2px 8px;
+				border-radius: 999px;
+				background: rgba(15, 23, 42, 0.08);
+				font-weight: 600;
+			}
+
+			.muted {
+				color: var(--muted);
+				font-size: 12px;
+			}
+
+			@media (max-width: 720px) {
+				.lesson-card {
+					grid-template-columns: 70px 1fr;
+				}
+
+				.time {
+					font-size: 11px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="page">
+			<header>
+				<h1>Class Schedule</h1>
+				<p>Tap a class to focus. Today’s schedule is highlighted automatically.</p>
+				<span id="todayLabel" class="badge"></span>
+			</header>
+
+			<div id="schedule" class="schedule" aria-live="polite"></div>
+		</div>
+
+		<script>
+			const scheduleData = [
+				{
+					offerNo: "0639",
+					classroom: "vufh4mti",
+					subject: "CC 105",
+					description: "Information Management 1",
+					unit: "3",
+					days: "WF",
+					time: "10:00 am - 12:00 pm",
+					room: "ITL 4",
+					type: "Lab",
+				},
+				{
+					offerNo: "0639",
+					classroom: "vufh4mti",
+					subject: "CC 105",
+					description: "Information Management 1",
+					unit: "3",
+					days: "M",
+					time: "11:00 am - 12:00 pm",
+					room: "ASYNCH",
+					type: "Lec",
+				},
+				{
+					offerNo: "02698",
+					classroom: "5yvyyljw",
+					subject: "EA&H",
+					description: "Reading Visual Arts",
+					unit: "3",
+					days: "MWF",
+					time: "05:15 pm - 06:15 pm",
+					room: "PH205",
+					type: "Lec",
+				},
+				{
+					offerNo: "01347",
+					classroom: "dkd4cs7v",
+					subject: "ESocSciPhil (2018)",
+					description: "Gender and Society",
+					unit: "3",
+					days: "TTh",
+					time: "06:30 pm - 08:00 pm",
+					room: "J 606",
+					type: "Lec",
+				},
+				{
+					offerNo: "00600",
+					classroom: "zbxishpp",
+					subject: "MST-BSIT",
+					description: "Environmental Science",
+					unit: "3",
+					days: "TTh",
+					time: "08:00 pm - 09:30 pm",
+					room: "M 501",
+					type: "Lec",
+				},
+				{
+					offerNo: "01456",
+					classroom: "d6dkgabr",
+					subject: "PE 204 (2018)",
+					description: "PATH-FIT II (Dance, Games and Sports)",
+					unit: "2",
+					days: "S",
+					time: "01:00 pm - 03:00 pm",
+					room: "LOUNGE-C",
+					type: "Lec",
+				},
+			];
+
+			const dayOrder = ["M", "T", "W", "Th", "F", "S", "Su"];
+			const dayLabels = {
+				M: "Monday",
+				T: "Tuesday",
+				W: "Wednesday",
+				Th: "Thursday",
+				F: "Friday",
+				S: "Saturday",
+				Su: "Sunday",
+			};
+
+			const palette = [
+				"#bfe1ff",
+				"#c8f1d4",
+				"#ffd0dd",
+				"#ffe3b0",
+				"#f7d3ff",
+				"#ffe6c7",
+			];
+
+			const todayIndex = new Date().getDay();
+			const dayMap = ["Su", "M", "T", "W", "Th", "F", "S"];
+			const todayCode = dayMap[todayIndex];
+			const todayName = new Intl.DateTimeFormat("en-US", {
+				weekday: "long",
+			}).format(new Date());
+
+			const label = document.getElementById("todayLabel");
+			label.textContent = `Today: ${todayName}`;
+
+			const scheduleEl = document.getElementById("schedule");
+			const cards = [];
+
+			const expandDays = (days) => {
+				const result = [];
+				if (days.includes("Th")) {
+					result.push("Th");
+					const withoutTh = days.replace("Th", "");
+					withoutTh.split("").forEach((d) => result.push(d));
+					return result;
+				}
+				return days.split("");
+			};
+
+			const grouped = new Map();
+			scheduleData.forEach((item) => {
+				const days = expandDays(item.days);
+				days.forEach((day) => {
+					if (!grouped.has(day)) grouped.set(day, []);
+					grouped.get(day).push(item);
+				});
+			});
+
+			dayOrder.forEach((dayKey) => {
+				const dayItems = grouped.get(dayKey);
+				if (!dayItems || dayItems.length === 0) return;
+
+				const section = document.createElement("section");
+				section.className = "day-section";
+				if (dayKey === todayCode) {
+					section.classList.add("today");
+				}
+
+				const header = document.createElement("div");
+				header.className = "day-header";
+				header.innerHTML = `
+					<div class="day-title">${dayLabels[dayKey]}</div>
+					<div class="day-count">${dayItems.length} class$${
+						dayItems.length > 1 ? "es" : ""
+					}</div>
+				`;
+				section.appendChild(header);
+
+				dayItems.forEach((item, index) => {
+					const card = document.createElement("div");
+					card.className = "lesson-card";
+					card.style.background = palette[index % palette.length];
+					card.innerHTML = `
+						<div class="time">${item.time}</div>
+						<div>
+							<p class="subject">${item.subject}</p>
+							<div class="meta">
+								<span>${item.description}</span>
+								<span class="tag">${item.room}</span>
+								<span class="tag">${item.type}</span>
+							</div>
+						</div>
+					`;
+
+					card.addEventListener("click", () => {
+						cards.forEach((c) => c.classList.remove("active"));
+						card.classList.add("active");
+					});
+
+					cards.push(card);
+					section.appendChild(card);
+				});
+
+				scheduleEl.appendChild(section);
+			});
+		</script>
+	</body>
+</html>
